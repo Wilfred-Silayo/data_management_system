@@ -5,8 +5,13 @@
         </svg>
     </div>
     <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="1">1</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="5">5</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="10">10</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="20">20</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="50">50</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="100">100</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="500">500</a></li>
+        <li><a class="dropdown-item" href="#" data-perpage="1000">1000</a></li>
     </ul>
 </div>

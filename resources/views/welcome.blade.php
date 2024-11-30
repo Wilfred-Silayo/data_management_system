@@ -72,7 +72,7 @@
                 <x-table />
 
             </div>
-            <div class="row">
+            <div class="row my-3">
                 <div class="col-4">
                     <button id="export-xls" class="btn btn-success">Export Excel File</button>
                 </div>

@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    //show and hide search field upon clicking search icon
     $("#search-icon").click(function () {
         const searchField = $("#search-field");
 
@@ -10,14 +11,7 @@ $(document).ready(function () {
         }
     });
 
-    $(".dropdown-item.dropdown-toggle").click(function (e) {
-        var $submenu = $(this).children(".dropdown-menu");
-
-        $submenu.toggle();
-
-        e.stopPropagation();
-    });
-
+    //upload file
     $("#fileUploadForm").on("submit", function (e) {
         e.preventDefault();
 
@@ -101,6 +95,7 @@ $(document).ready(function () {
         }, 2000); // Poll every 2 seconds
     }
 
+    //export xlsx file
     $("#export-xls").click(function () {
         $("#download-status").html("");
 
@@ -157,4 +152,152 @@ $(document).ready(function () {
             });
         }, 2000);
     }
+
+    // global variable per page
+    var perPage = 15;
+
+    // load data to the table
+    function loadTableData(
+        page = 1,
+        perPage,
+        search = "",
+        sortColumn = "id",
+        sortOrder = "asc"
+    ) {
+        $.ajax({
+            url: "/fetch-data",
+            type: "GET",
+            data: {
+                page: page,
+                perPage: perPage,
+                search: search,
+                sortColumn: sortColumn,
+                sortOrder: sortOrder,
+            },
+            success: function (response) {
+                let tbody = $("#dataTable tbody");
+                tbody.empty();
+
+                if (response.data.data.length > 0) {
+                    // console.log(response.data.data);
+                    $.each(response.data.data, function (index, item) {
+                        const rowIndex =
+                            index + 1 + (page - 1) * parseInt(perPage);
+                        tbody.append(`
+                            <tr>
+                                <td>${rowIndex}</td>
+                                <td>${item.cut}</td>
+                                <td>${item.color}</td>
+                                <td>${item.clarity}</td>
+                                <td>${item.carat_weight}</td>
+                                <td>${item.cut_quality}</td>
+                                <td>${item.lab}</td>
+                                <td>${item.symmetry}</td>
+                                <td>${item.polish}</td>
+                                <td>${item.eye_clean}</td>
+                                <td>${item.culet_size}</td>
+                                <td>${item.culet_condition}</td>
+                                <td>${item.depth_percent}</td>
+                                <td>${item.table_percent}</td>
+                                <td>${item.meas_length}</td>
+                                <td>${item.meas_width}</td>
+                                <td>${item.meas_depth}</td>
+                                <td>${item.girdle_min}</td>
+                                <td>${item.girdle_max}</td>
+                                <td>${item.fluor_color}</td>
+                                <td>${item.fluor_intensity}</td>
+                                <td>${item.fancy_color_dominant_color}</td>
+                                <td>${item.fancy_color_secondary_color}</td>
+                                <td>${item.fancy_color_overtone}</td>
+                                <td>${item.fancy_color_intensity}</td>
+                                <td>${item.total_sales_price}</td>
+                            </tr>
+                        `);
+                    });
+                    // console.log(response.pagination);
+                    $("#no-data").html("");
+                    $("#pagination-links").html(response.pagination);
+                } else {
+                    $("#no-data").html(
+                        '<div class="alert alert-danger" role="alert">No data available. Please reload.</div>'
+                    );
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr);
+
+                $("#no-data").html(
+                    '<div class="alert alert-danger" role="alert">An error occurred while fetching data. Please reload.</div>'
+                );
+            },
+        });
+    }
+
+    // Initial table load
+    loadTableData(1, perPage);
+
+    //pagination links click
+    $(document).on("click", ".pagination a", function (e) {
+        e.preventDefault();
+
+        let page = $(this).attr("href").split("page=")[1];
+
+        loadTableData(page, perPage);
+    });
+
+    // searching by keywords
+    $("#search-field").on("keyup", function () {
+        const search = $(this).val();
+        loadTableData(1, perPage, search);
+    });
+
+    //filter by per page
+    $(".dropdown-menu a").on("click", function (e) {
+        e.preventDefault();
+
+        perPage = $(this).data("perpage");
+
+        loadTableData(1, perPage);
+    });
+
+    // sorting by columns
+    $.ajax({
+        url: "/fetch-columns",
+        type: "GET",
+        success: function (columns) {
+            // Populate the dropdown with column names
+            let sortDropdown = $("#sort-dropdown");
+
+            // Dynamically populate the dropdown with column names
+            columns.forEach(function (column) {
+                sortDropdown.append(`
+                    <li class="dropdown-item dropdown-toggle">
+                        ${column}
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item sort-option" href="#" data-column="${column}" data-order="asc">Asc</a></li>
+                            <li><a class="dropdown-item sort-option" href="#" data-column="${column}" data-order="desc">Desc</a></li>
+                        </ul>
+                    </li>
+                `);
+            });
+
+             // Prevent submenu from collapsing
+             $(".dropdown-item.dropdown-toggle").on("click", function (e) {
+                const $submenu = $(this).children(".dropdown-menu");
+                $submenu.toggle(); 
+                e.stopPropagation(); 
+            });
+
+            // Add click event to sort options
+            $(".sort-option").on("click", function (e) {
+                e.preventDefault();
+
+                const column = $(this).data("column");
+                const order = $(this).data("order");
+                let search = "";
+
+                loadTableData(1, perPage, search, column, order);
+            });
+        },
+    });
 });
